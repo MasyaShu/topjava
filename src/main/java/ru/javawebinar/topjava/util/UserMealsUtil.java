@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.time.chrono.ChronoLocalDateTime;
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class UserMealsUtil {
     public static void main(String[] args) {
@@ -25,7 +26,7 @@ public class UserMealsUtil {
         List<UserMealWithExcess> mealsTo = filteredByCycles(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000);
         mealsTo.forEach(System.out::println);
 
-//        System.out.println(filteredByStreams(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
+        System.out.println(filteredByStreams(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
     }
 
     public static List<UserMealWithExcess> filteredByCycles(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
@@ -38,12 +39,20 @@ public class UserMealsUtil {
             }
         }
         List<UserMealWithExcess> mealsTo = new ArrayList<>();
-        mealsToTemp.forEach((a,b) -> mealsTo.add(new UserMealWithExcess(a.getDateTime(), a.getDescription(), a.getCalories(), caloriesDay.get(b) > caloriesPerDay)));
+        mealsToTemp.forEach((a, b) -> mealsTo.add(new UserMealWithExcess(a.getDateTime(), a.getDescription(), a.getCalories(), caloriesDay.get(b) > caloriesPerDay)));
         return mealsTo;
     }
 
     public static List<UserMealWithExcess> filteredByStreams(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
-        // TODO Implement by streams
-        return null;
+        List<UserMealWithExcess> mealsTo = new ArrayList<>();
+        Map<LocalDate, Integer> caloriesDay = new HashMap<>();
+        meals.stream()
+                .map(um -> caloriesDay.merge(um.getDateTime().toLocalDate(), um.getCalories(), Integer::sum))
+                .count();
+        meals.stream()
+                .filter(um -> startTime.isBefore(um.getDateTime().toLocalTime()) && endTime.isAfter(um.getDateTime().toLocalTime()))
+                .map(um -> mealsTo.add(new UserMealWithExcess(um.getDateTime(), um.getDescription(), um.getCalories(), caloriesDay.get(um.getDateTime().toLocalDate()) > caloriesPerDay)))
+                .count();
+        return mealsTo;
     }
 }
