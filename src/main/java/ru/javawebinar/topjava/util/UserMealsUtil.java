@@ -7,9 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
-import java.time.chrono.ChronoLocalDateTime;
 import java.util.*;
-import java.util.stream.IntStream;
 
 public class UserMealsUtil {
     public static void main(String[] args) {
